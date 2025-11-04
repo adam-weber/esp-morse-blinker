@@ -66,6 +66,13 @@ jobs:
         run: |
           espup install
           . $HOME/export-esp.sh
+          # Make environment variables available to subsequent steps
+          cat $HOME/export-esp.sh | grep "export" | while read -r line; do
+            eval $line
+            var_name=$(echo $line | sed 's/export \([^=]*\)=.*/\1/')
+            var_value=$(eval echo \$$var_name)
+            echo "$var_name=$var_value" >> $GITHUB_ENV
+          done
 
       - name: Update .cargo/config.toml
         run: |
@@ -73,12 +80,10 @@ jobs:
 
       - name: Build firmware
         run: |
-          . $HOME/export-esp.sh
           cargo build --release --target ${{ matrix.target }}
 
       - name: Generate merged binary
         run: |
-          . $HOME/export-esp.sh
           cargo espflash save-image \
             --chip ${{ matrix.chip }} \
             --merge \
