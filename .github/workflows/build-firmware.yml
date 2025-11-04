@@ -83,18 +83,15 @@ jobs:
         run: cargo install espflash
 
       - name: Update .cargo/config.toml
-        working-directory: firmware/morse-blinker
         run: |
           sed -i 's/target = .*/target = "${{ matrix.target }}"/' .cargo/config.toml
 
       - name: Build firmware
-        working-directory: firmware/morse-blinker
         run: |
           . $HOME/export-esp.sh
           cargo build --release --target ${{ matrix.target }}
 
       - name: Generate merged binary
-        working-directory: firmware/morse-blinker
         run: |
           espflash save-image --chip ${{ matrix.chip }} --merge \
             target/${{ matrix.target }}/release/morse-blinker \
@@ -104,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: morse-blinker-${{ matrix.chip }}
-          path: firmware/morse-blinker/morse-blinker-${{ matrix.chip }}.bin
+          path: morse-blinker-${{ matrix.chip }}.bin
           retention-days: 90
 
   create-release:
@@ -135,7 +132,6 @@ jobs:
 
       - name: Get version from Cargo.toml
         id: version
-        working-directory: firmware/morse-blinker
         run: |
           VERSION=$(grep '^version = ' Cargo.toml | head -1 | sed 's/version = "\(.*\)"/\1/')
           echo "version=v$VERSION" >> $GITHUB_OUTPUT
