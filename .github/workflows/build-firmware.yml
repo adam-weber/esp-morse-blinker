@@ -51,8 +51,6 @@ jobs:
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rust-src
 
       - name: Install ESP-IDF prerequisites
         run: |
@@ -68,7 +66,6 @@ jobs:
         run: |
           espup install
           . $HOME/export-esp.sh
-          rustup component add rust-src --toolchain stable
 
       - name: Update .cargo/config.toml
         run: |
